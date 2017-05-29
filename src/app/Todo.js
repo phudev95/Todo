@@ -13,8 +13,20 @@ export default class Todo extends Component {
 
         this.state = {
             todos: [],
-            newTodo: ''
+            newTodo: '',
+            loading: true
         };
+    }
+
+    componentWillMount() {
+        fetch('http://192.168.56.1:5000/todos',{
+            'Accept': 'application/json'
+        })
+        .then(res => res.json())
+        .then(todos => this.setState({
+            todos,
+            loading: false
+        }));
     }
 
     handleChange(text) {
@@ -27,11 +39,20 @@ export default class Todo extends Component {
         const newTodo = this.state.newTodo.trim();
 
         if (newTodo !== '') {
-            const todos = [...this.state.todos, this.state.newTodo];
-            this.setState({
-                todos,
+            fetch('http://192.168.56.1:5000/todos', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name: newTodo
+                })
+            })
+            .then(res => res.json())
+            .then(todo => this.setState({
+                todos: [todo, ...this.state.todos],
                 newTodo: ''
-            });
+            }));
         }
     }
 
@@ -51,13 +72,22 @@ export default class Todo extends Component {
                         <Text style={styles.buttonText}>make</Text>
                     </TouchableOpacity>
                 </View>
-                <View style={styles.todos}>
-                    {this.state.todos.map((todo, i) => (
-                        <View style={styles.todo}>
-                            <Text style={styles.todoText} key={i}>{todo}</Text>
-                        </View>
-                    ))}
-                </View>
+
+                {
+                    this.state.loading && <View style={styles.loading}>
+                        <Text>Loading...</Text>
+                    </View>
+                }
+
+                {
+                    !this.state.loading && <View style={styles.todos}>
+                        {this.state.todos.map((todo, i) => (
+                            <View style={styles.todo} key={i}>
+                                <Text style={styles.todoText}>{todo.name}</Text>
+                            </View>
+                        ))}
+                    </View>
+                }
             </View>
         );
     }
@@ -88,7 +118,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold'
     },
     todos: {
-        marginTop: 60
+        marginTop: 30
     },
     todo: {
         marginBottom: 10,
@@ -97,5 +127,8 @@ const styles = StyleSheet.create({
     },
     todoText: {
         fontSize: 24
+    },
+    loading: {
+        marginTop: 25
     }
 });
