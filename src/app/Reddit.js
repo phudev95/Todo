@@ -1,42 +1,38 @@
 import React, {Component} from 'react';
 import {
     View,
-    Text
+    Text,
+    TouchableOpacity
 } from 'react-native';
+import { connect } from 'react-redux';
+import { ADD_POST } from './reducers';
 
-class Reddit extends Component {
-    constructor() {
-        super();
-
-        this.state = {
-            posts: [],
-            loading: true
-        }
-    }
-
-    componentDidMount() {
-        fetch('https://www.reddit.com/.json', {
-            Accept: 'application/json'
-        })
-        .then(res => res.json())
-        .then(data => {
-            this.setState({posts: data.data.children, loading: false});
-        });
-    }
-
-    render() {
-        return (
-            <View>
-                <Text>Reddit API</Text>
-                {this.state.loading && <Text>Loading...</Text>}
-                <View>
-                    {this.state.posts.map((post, i) => (
-                        <Text key={i}>{post.data.author}</Text>
-                    ))}
-                </View>
-            </View>
-        )
-    }
+const _Reddit = (props) => {
+    return (
+        <View>
+            {props.posts.map((post, i) => (
+                <Text key={i}>{post.name}</Text>
+            ))}
+            <TouchableOpacity onPress={() => props.addRedditPost()}>
+                <Text>Add</Text>
+            </TouchableOpacity>
+        </View>
+    );
 }
 
-export default Reddit;
+const mapStateToProps = (state) => {
+    return {
+        posts: state.reddit
+    };
+};
+
+const mapActionsToProps = (dispatch) => ({
+    addRedditPost(post = {name: 'new state'}) {
+        dispatch({
+            type: ADD_POST,
+            payload: post
+        });
+    }
+});
+
+export default Reddit = connect(mapStateToProps, mapActionsToProps)(_Reddit);

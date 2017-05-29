@@ -3,8 +3,14 @@ import { AppRegistry, StyleSheet } from 'react-native';
 import Todo from './src/app/Todo'
 import Fancy from './src/app/Fancy'
 import Reddit from './src/app/Reddit'
+import { Provider } from 'react-redux'
+import { store } from './src/app/store'
 
-const Main = () => (<Todo />);
+const Main = () => (
+	<Provider store={store}>
+		<Todo />
+	</Provider>
+);
 
 
 // export default class Main extends Component {
